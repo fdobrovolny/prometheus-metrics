@@ -13,7 +13,8 @@ config_schema:
   - ["prometheus", "o", {title: "Prometheus settings"}]
   - ["prometheus.server_enable", "b", true, {title: "Enable Prometheus HTTP endpoint"}]
   - ["prometheus.server_uri", "s", "/metrics", {title: "Serve Prometheus from this uri"}]
-  - ["prometheus.pushgateway", "s", "example.com:9091", {title: "Prometheus pushgateway host:port"}]
+  - ["prometheus.pushgateway", "s", "example.com:9091", {title: "Prometheus pushgateway protocol://host:port"}]
+  - ["prometheus.pushgateway_ssl_ca_cert", "s", "ca.pem", {"title": "Verify pushgateway certificate using this CA bundle"}]
 
 libs:
   - location: https://github.com/mongoose-os-libs/http-server

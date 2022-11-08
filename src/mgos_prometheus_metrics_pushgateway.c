@@ -35,9 +35,9 @@ static char *mgos_prometheus_post_uri() {
   return s_uri;
 }
 
-static void mgos_prometheus_post_begin(struct mg_connection *nc) {
+static void mgos_prometheus_post_begin(struct mg_connection *nc, struct mg_str host) {
   mg_printf(nc, "POST %s HTTP/1.1\r\n", mgos_prometheus_post_uri());
-  mg_printf(nc, "Host: %s\r\n", mgos_sys_config_get_prometheus_pushgateway());
+  mg_printf(nc, "Host: %.*s\r\n", (int) host.len, host.ptr);
   mg_printf(nc, "User-Agent: Mongoose/" MG_VERSION "\r\n");
   mg_printf(nc, "Transfer-Encoding: chunked\r\n");
   mg_printf(nc, "Content-Encoding: chunked\r\n");
@@ -77,7 +77,12 @@ static void mgos_prometheus_metrics_post_handler(struct mg_connection *nc,
       int connect_status = *(int *) ev_data;
       if (connect_status == 0) {
         //        LOG(LL_DEBUG, ("connect() success"));
-        mgos_prometheus_post_begin(nc);
+        struct mg_str host = mg_url_host(mgos_sys_config_get_prometheus_pushgateway());
+        if (mg_url_is_ssl(mgos_sys_config_get_prometheus_pushgateway())) {
+          struct mg_tls_opts opts = {.ca = mgos_sys_config_get_prometheus_pushgateway_ssl_ca_cert(), .srvname = host};
+          mg_tls_init(c, &opts);
+        }
+        mgos_prometheus_post_begin(nc, host);
         mgos_prometheus_metrics_send_chunks(nc);
       } else {
         LOG(LL_ERROR, ("connect() error: %s", strerror(connect_status)));

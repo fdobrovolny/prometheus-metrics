@@ -179,6 +179,30 @@ enum mgos_app_init_result mgos_app_init(void) {
 }
 ```
 
+#### HTTPS
+
+You can push metrics also via HTTPS by specifying follwing in `mos.yml`:
+
+```
+config_schema:
+  - ["prometheus.server_enable", false]
+  - ["prometheus.pushgateway", "s", "https://example.com"]
+```
+
+For https to work you either have to add `ca-bundle` package or specify a custom CA for verification of server ssl cert in `mos.yml`:
+
+```
+libs:
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+```
+
+```
+config_schema:
+  - ["prometheus.server_enable", false]
+  - ["prometheus.pushgateway", "s", "https://example.com"]
+  - ["prometheus.pushgateway_ssl_ca_cert", "s", "my_ca.pem"]
+
+```
 
 # Disclaimer
 
